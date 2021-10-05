@@ -2,14 +2,16 @@
 layout: post
 title:  "OverTheWire \"Leviathan\" writeup"
 date:   2021-10-05 22:26:00 +0200
-categories: over the wire
+categories: over-the-wire
 ---
 ## DISCLAIMER
 
 *Because it's not a real writeup if it doesn't start with a disclaimer.*\
 \
 This writeup is not intended to ruin the game to anyone. Passwords are omitted in the whole document, and published in a table you can find at the and of the page.\
-If you haven't tried to solve the game on your own, try to follow the hints in the next paragraphs before following the easy route.
+If you haven't tried to solve the game on your own, try to follow the hints in the next paragraphs before following the easy route.\
+\
+*Link to the [game](https://overthewire.org/wargames/leviathan/).*
 
 ## THE RED THREAD
 
